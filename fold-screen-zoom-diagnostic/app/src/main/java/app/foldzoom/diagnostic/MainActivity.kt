@@ -30,6 +30,7 @@ class MainActivity : Activity() {
     private lateinit var coverDensity: EditText
     private lateinit var innerDensity: EditText
     private lateinit var grantButton: Button
+    private lateinit var grantStatus: TextView
     private lateinit var testButton: Button
     private lateinit var batteryButton: Button
     private lateinit var startButton: Button
@@ -55,7 +56,7 @@ class MainActivity : Activity() {
         monitor = HingeMonitor(this) { degrees, posture -> runOnUiThread { showPosture(degrees, posture.name) } }
         shizukuSetup = ShizukuSetup(this) { message ->
             runOnUiThread {
-                setStatus(message)
+                grantStatus.text = message
                 refreshUiState()
             }
         }
@@ -125,13 +126,16 @@ class MainActivity : Activity() {
         setupCard.addView(text("Complete each step in order. Buttons unlock when their prerequisite is ready."))
         grantButton = button("1. Grant secure-settings access through Shizuku") {
             toast("Requesting Shizuku access…")
+            grantStatus.text = "Checking Shizuku connection…"
             shizukuSetup.requestAccessAndGrant()
         }
+        grantStatus = text("", 14f, color = Color.DKGRAY)
         testButton = button("2. Apply preset settings") { applyLiveWindowManagerDensity() }
         batteryButton = button("3. Allow unrestricted battery use") { requestBatteryExemption() }
-        startButton = button("4. Start automatic posture switching") { startPostureMonitor() }
-        stopButton = button("Stop automatic posture switching") { stopPostureMonitor() }
+        startButton = button("Start automatic DPI switching") { startPostureMonitor() }
+        stopButton = button("Stop automatic DPI switching") { stopPostureMonitor() }
         setupCard.addView(grantButton)
+        setupCard.addView(grantStatus)
         setupCard.addView(testButton)
         setupCard.addView(batteryButton)
         setupCard.addView(startButton)
@@ -236,16 +240,17 @@ class MainActivity : Activity() {
 
     private fun refreshUiState() {
         val secure = hasSecureSettings()
-        val presetsSaved = prefs.getBoolean("presets_saved", false)
-        val liveVerified = prefs.getBoolean("live_verified", false)
         val monitoring = prefs.getBoolean("monitor_requested", false)
         grantButton.isEnabled = !secure
         grantButton.text = if (secure) "1. Secure-settings access granted" else "1. Grant secure-settings access through Shizuku"
+        if (grantStatus.text.isBlank()) {
+            grantStatus.text = if (secure) "Secure-settings access is granted." else "Grant this once through Shizuku to unlock the remaining steps."
+        }
         testButton.isEnabled = secure
         testButton.text = "2. Apply preset settings"
         batteryButton.isEnabled = secure && !isIgnoringBatteryOptimizations()
         batteryButton.text = if (isIgnoringBatteryOptimizations()) "3. Battery use is unrestricted" else "3. Allow unrestricted battery use"
-        startButton.isEnabled = secure && presetsSaved && liveVerified && !monitoring
+        startButton.isEnabled = secure && !monitoring
         stopButton.isEnabled = monitoring
     }
 

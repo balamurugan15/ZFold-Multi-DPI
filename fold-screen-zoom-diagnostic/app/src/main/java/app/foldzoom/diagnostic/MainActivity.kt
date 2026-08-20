@@ -120,6 +120,7 @@ class MainActivity : Activity() {
             toast("Saved!")
             refreshUiState()
         })
+        presetsCard.addView(text("Tap Apply Preset Settings to apply changes now.", 14f, color = Color.DKGRAY))
         root.addView(presetsCard)
 
         val setupCard = card("Setup & Automation")

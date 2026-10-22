@@ -36,6 +36,6 @@ object WindowManagerDensity {
     private const val WINDOW_MANAGER_DESCRIPTOR = "android.view.IWindowManager"
     private const val PRIMARY_USER_ID = 0
 
-    // Verified from this Fold 7's One UI 8.5 framework: IWindowManager#setForcedDisplayDensityForUser.
-    private const val TRANSACTION_SET_FORCED_DISPLAY_DENSITY_FOR_USER = 75
+    // Verified from this Fold 7's One UI 9 framework: IWindowManager#setForcedDisplayDensityForUser.
+    private const val TRANSACTION_SET_FORCED_DISPLAY_DENSITY_FOR_USER = 79
 }
